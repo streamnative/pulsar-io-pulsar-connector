@@ -57,11 +57,11 @@ public class PulsarSinkConfig implements Serializable {
     @FieldDoc(required = true, defaultValue = "", help = "topic")
     private String topic;
 
-    @FieldDoc(required = true, defaultValue = "1000", help = "max send queue size")
-    private int maxPendingMessages;
-
     @FieldDoc(required = true, defaultValue = "false", help = "")
     private boolean autoUpdatePartition;
+
+    @FieldDoc(required = true, defaultValue = "1000", help = "max send queue size")
+    private int maxPendingMessages;
 
     public static PulsarSinkConfig load(String yamlFile) throws IOException {
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
