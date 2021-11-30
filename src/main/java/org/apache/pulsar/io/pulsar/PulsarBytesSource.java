@@ -66,6 +66,9 @@ public class PulsarBytesSource implements Source<byte[]> {
     @Override
     public Record<byte[]> read() throws Exception {
         final Message<byte[]> message = this.consumer.receive();
+        if (log.isDebugEnabled()) {
+            log.debug("receive a pulsar message id is {}", message.getMessageId());
+        }
         return new PulsarRecord<>(message, () -> this.consumer.acknowledgeAsync(message), () -> this.consumer.negativeAcknowledge(message));
     }
 
