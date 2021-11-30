@@ -19,15 +19,13 @@
 package org.apache.pulsar.io.pulsar;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.pulsar.client.api.ClientBuilder;
-import org.apache.pulsar.client.api.Producer;
-import org.apache.pulsar.client.api.PulsarClient;
-import org.apache.pulsar.client.api.TypedMessageBuilder;
+import org.apache.pulsar.client.api.*;
 import org.apache.pulsar.functions.api.Record;
 import org.apache.pulsar.io.core.Sink;
 import org.apache.pulsar.io.core.SinkContext;
 
 import java.util.Map;
+import java.util.function.Consumer;
 
 /**
  * @author hezhangjian
@@ -60,13 +58,27 @@ public class PulsarBytesSink implements Sink<byte[]> {
 
     @Override
     public void write(Record<byte[]> record) throws Exception {
+        if (!record.getMessage().isPresent()) {
+            record.ack();
+            return;
+        }
+        Message<byte[]> message = record.getMessage().get();
         final TypedMessageBuilder<byte[]> messageBuilder = producer.newMessage();
-        messageBuilder.value(record.getValue()).properties(record.getProperties());
+        messageBuilder.value(message.getValue()).properties(record.getProperties());
         if (record.getKey().isPresent()) {
             messageBuilder.key(record.getKey().get());
         }
-        messageBuilder.sendAsync().thenAccept(__ -> record.ack()).exceptionally(throwable -> {
-            log.error("send msg to pulsar failed", throwable);
+        if (log.isDebugEnabled()) {
+            log.debug("begin to send pulsar message id is {}", message.getMessageId());
+        }
+        messageBuilder.sendAsync().thenAccept(id -> {
+            if (log.isDebugEnabled()) {
+                log.debug("success to send functiongraph, message id is {} remote message id is {}",
+                        message.getMessageId(), id);
+            }
+            record.ack();
+        }).exceptionally(throwable -> {
+            log.error("send msg to pulsar message id {} failed", message.getMessageId(), throwable);
             return null;
         });
     }
