@@ -55,6 +55,7 @@ public class PulsarBytesSource implements Source<byte[]> {
         }
         this.client = clientBuilder.build();
         this.consumer = this.client.newConsumer().topic(sourceConfig.getTopic())
+                .subscriptionName(sourceConfig.getSubscriptionName())
                 .receiverQueueSize(sourceConfig.getReceiverQueueSize())
                 .autoUpdatePartitions(sourceConfig.isAutoUpdatePartition())
                 .subscriptionInitialPosition(sourceConfig.getSubscriptionInitialPosition())

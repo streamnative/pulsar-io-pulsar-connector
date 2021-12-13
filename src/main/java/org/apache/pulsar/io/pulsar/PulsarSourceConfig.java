@@ -45,6 +45,9 @@ public class PulsarSourceConfig implements Serializable {
     @FieldDoc(required = true, defaultValue = "", help = "pulsar service url")
     private String serviceUrl;
 
+    @FieldDoc(required = true, defaultValue = "", help = "pulsar subscribe name")
+    private String subscriptionName;
+
     @FieldDoc(defaultValue = "false", help = "enable pulsar client tls")
     private boolean enableTls;
 
